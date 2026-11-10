@@ -1,11 +1,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Book = require('../models/Book');
+const connectDB = require('../config/db');
 
 const router = express.Router();
 
-// Helper to check DB connection
-const isDbConnected = () => mongoose.connection.readyState === 1;
+// Helper to check DB connection and trigger reconnection if disconnected
+const isDbConnected = () => {
+  if (mongoose.connection.readyState === 0) {
+    connectDB();
+  }
+  return mongoose.connection.readyState === 1;
+};
 
 const dbNotConnectedResponse = (res) => {
   return res.status(503).json({
